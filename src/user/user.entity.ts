@@ -9,6 +9,9 @@ export class UserEntity {
   @Column()
   email: string;
 
+  @Column()
+  username: string;
+
   @Column({ default: '' })
   bio: string;
 
@@ -20,6 +23,6 @@ export class UserEntity {
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await hash(this.password, 10)
+    this.password = await hash(this.password, 10);
   }
 }
