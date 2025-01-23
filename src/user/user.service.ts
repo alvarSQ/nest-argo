@@ -41,11 +41,9 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<UserEntity> {
-
     const user = await this.userRepository.findOne({
-      where: {
-        email: loginUserDto.email,
-      },
+      where: { email: loginUserDto.email },
+      select: ['id', 'username', 'email', 'bio', 'image', 'password'],
     });
 
     if (!user) {
@@ -67,9 +65,16 @@ export class UserService {
       );
     }
 
-    delete user.password
+    delete user.password;
 
     return user;
+  }
+
+  async findById(id: number): Promise<UserEntity> {
+    return this.userRepository.findOneBy({
+      id: id,
+    });
+    // return this.userRepository.findOne({ where: { id } });
   }
 
   generateJwt(user: UserEntity): string {
