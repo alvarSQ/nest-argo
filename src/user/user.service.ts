@@ -72,9 +72,7 @@ export class UserService {
   }
 
   async findById(id: number): Promise<UserEntity> {
-    return this.userRepository.findOneBy({
-      id: id,
-    });
+    return this.userRepository.findOneBy({ id });
   }
 
   async updateUser(
