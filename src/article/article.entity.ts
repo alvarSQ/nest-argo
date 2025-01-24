@@ -51,6 +51,6 @@ export class ArticleEntity {
   //   ((Math.random() * Math.pow(36, 6)) | 0).toString(36);
   // }
 
-  @ManyToOne(() => UserEntity, (user) => user.articles)
+  @ManyToOne(() => UserEntity, (user) => user.articles, {eager: true})
   author: UserEntity;
 }

@@ -1,9 +1,9 @@
 import { UserEntity } from '@/user/user.entity';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/createArticle.dto';
 import { ArticleEntity } from './article.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { IArticleResponse } from './types/articleResponse.interface';
 import slugify from 'slugify';
 
@@ -36,8 +36,39 @@ export class ArticleService {
     return await this.articleRepository.findOneBy({ slug });
   }
 
+  async deleteArticle(
+    slug: string,
+    currentUserId: number,
+  ): Promise<DeleteResult> {
+    const article = await this.findBySlug(slug);
+    if (!article) {
+      throw new HttpException('Статья не найдена', HttpStatus.NOT_FOUND);
+    }
+    if (article.author.id !== currentUserId) {
+      throw new HttpException('Вы не авторизовавны', HttpStatus.FORBIDDEN);
+    }
+    return await this.articleRepository.delete({ slug });
+  }
+
   buildArticleResponse(article: ArticleEntity): IArticleResponse {
     return { article };
+  }
+
+  async updateArticle(
+    slug: string,
+    updateArticleDto: CreateArticleDto,
+    currentUserId: number,
+  ): Promise<ArticleEntity> {
+    const article = await this.findBySlug(slug);
+    if (!article) {
+      throw new HttpException('Статья не найдена', HttpStatus.NOT_FOUND);
+    }
+    if (article.author.id !== currentUserId) {
+      throw new HttpException('Вы не авторизовавны', HttpStatus.FORBIDDEN);
+    }
+
+    Object.assign(article, updateArticleDto)
+    return await this.articleRepository.save(article)
   }
 
   private getSlug(title: string): string {
